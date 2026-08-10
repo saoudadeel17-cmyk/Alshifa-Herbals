@@ -5,8 +5,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Reveal from '@/components/Reveal';
 import { useCart } from '@/context/CartContext';
-import { useLanguage } from '@/context/LanguageContext';
-import { translations } from '@/data/translations';
 import { PRODUCTS } from '@/data/products';
 
 const PROBLEMS = [
@@ -29,9 +27,7 @@ const BENEFITS = [
 
 export default function HomePage() {
   const { addToCart } = useCart();
-  const { lang } = useLanguage();
   const router = useRouter();
-  const t = translations[lang].home;
 
   const handleOrder = () => {
     addToCart(PRODUCTS.hepaliv);
@@ -44,25 +40,28 @@ export default function HomePage() {
         <div className="hero-arc" />
         <div className="wrap">
           <div>
-            <div className="eyebrow hero-eyebrow">{t.eyebrow}</div>
+            <div className="eyebrow hero-eyebrow">Nature&apos;s Power for Your Wellness</div>
             <h1>
-              {t.headlineTop}
+              Your liver works hard.
               <br />
-              <em>{t.headlineEm}</em> {t.headlineEnd}
+              <em>Give it herbs</em> that work harder.
             </h1>
-            <p className="sub">{t.sub}</p>
+            <p className="sub">
+              Hepaliv is a premium herbal powder crafted to support liver wellness, digestion,
+              metabolism and everyday energy — made with pure, traditional herbs.
+            </p>
             <div className="hero-ctas">
               <button className="btn-primary" onClick={handleOrder}>
-                {t.ctaShop}
+                Shop Hepaliv — Rs 1000
               </button>
               <a href="https://wa.me/966573859529" target="_blank" rel="noreferrer" className="btn-ghost">
-                {t.ctaWhatsapp}
+                Order on WhatsApp
               </a>
             </div>
             <div className="trustrow">
-              <div className="item"><span className="dot" />{t.trust1}</div>
-              <div className="item"><span className="dot" />{t.trust2}</div>
-              <div className="item"><span className="dot" />{t.trust3}</div>
+              <div className="item"><span className="dot" />100% Natural Herbal Actives</div>
+              <div className="item"><span className="dot" />No Added Chemicals</div>
+              <div className="item"><span className="dot" />Ships to Pakistan &amp; GCC</div>
             </div>
           </div>
           <div className="hero-media">
@@ -82,8 +81,8 @@ export default function HomePage() {
       <section className="problems">
         <div className="wrap">
           <Reveal className="section-head reveal">
-            <div className="eyebrow">{t.problemsEyebrow}</div>
-            <h2>{t.problemsHeading}</h2>
+            <div className="eyebrow">Struggling With?</div>
+            <h2>Hover a card to see what happens if it&apos;s ignored</h2>
           </Reveal>
           <Reveal className="pgrid reveal-stagger">
             {PROBLEMS.map((p) => (
@@ -121,12 +120,13 @@ export default function HomePage() {
             </div>
           </Reveal>
           <Reveal className="reveal">
-            <div className="eyebrow">{t.benefitsEyebrow}</div>
+            <div className="eyebrow">Key Benefits</div>
             <h2 style={{ fontSize: 32, color: 'var(--forest)', marginTop: 14 }}>
-              {t.benefitsHeading}
+              One formula. Four kinds of relief.
             </h2>
             <p style={{ color: 'var(--ink-soft)', marginTop: 12, fontSize: 14.5, lineHeight: 1.6, maxWidth: 460 }}>
-              {t.benefitsText}
+              A premium herbal formula made with pure herbs — turmeric, senna, fennel and
+              traditional roots — to support liver detox, digestion and steady, natural energy.
             </p>
             <div className="benefits">
               {BENEFITS.map((b) => (
@@ -137,7 +137,7 @@ export default function HomePage() {
               ))}
             </div>
             <Link href="/product" className="btn-primary" style={{ marginTop: 26, display: 'inline-flex' }}>
-              {t.viewProduct}
+              View Product Details
             </Link>
           </Reveal>
         </div>
@@ -158,8 +158,8 @@ export default function HomePage() {
       <section className="testis">
         <div className="wrap">
           <Reveal className="section-head reveal">
-            <div className="eyebrow">{t.reviewsEyebrow}</div>
-            <h2>{t.reviewsHeading}</h2>
+            <div className="eyebrow">Real Results</div>
+            <h2>What our customers say</h2>
           </Reveal>
           <Reveal className="tgrid reveal-stagger">
             <div className="tcard lift"><div className="stars">★★★★★</div><p>&quot;My digestion improved within two weeks and I finally feel light after meals.&quot;</p><div className="who">— Ayesha, Lahore</div></div>
@@ -173,13 +173,13 @@ export default function HomePage() {
         <Reveal className="wrap reveal">
           <div className="ctaband">
             <div>
-              <h2>{t.ctaBandHeading}</h2>
-              <p>{t.ctaBandText}</p>
+              <h2>Ready to feel lighter, calmer, healthier?</h2>
+              <p>Order Hepaliv today — delivered across Pakistan &amp; the GCC.</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
               <div className="cta-price">75g pack<b>Rs 1000/-</b></div>
               <button className="btn-primary" style={{ background: 'var(--gold)', color: 'var(--forest)' }} onClick={handleOrder}>
-                {t.orderNow}
+                Order Now
               </button>
             </div>
           </div>

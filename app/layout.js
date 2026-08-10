@@ -1,6 +1,6 @@
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
-import { LanguageProvider } from '@/context/LanguageContext';
+import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -14,13 +14,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" dir="ltr">
       <body>
-        <LanguageProvider>
+        <AuthProvider>
           <CartProvider>
             <Header />
             {children}
             <Footer />
           </CartProvider>
-        </LanguageProvider>
+        </AuthProvider>
       </body>
     </html>
   );

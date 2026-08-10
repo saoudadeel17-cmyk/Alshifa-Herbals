@@ -5,28 +5,26 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
-import { useLanguage } from '@/context/LanguageContext';
-import { translations } from '@/data/translations';
+import { useAuth } from '@/context/AuthContext';
+
+const NAV_ITEMS = [
+  { href: '/', label: 'Home' },
+  { href: '/product', label: 'Shop' },
+  { href: '/about', label: 'About' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/contact', label: 'Contact' },
+];
 
 export default function Header() {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
-  const { lang, setLang } = useLanguage();
   const { cartCount, bump } = useCart();
-  const t = translations[lang];
-
-  const NAV_ITEMS = [
-    { href: '/', label: t.nav.home },
-    { href: '/product', label: t.nav.shop },
-    { href: '/about', label: t.nav.about },
-    { href: '/contact', label: t.nav.contact },
-    { href: '/track-order', label: t.nav.track },
-  ];
+  const { user } = useAuth();
 
   return (
     <>
       <div className="announce">
-        <span>{t.announce}</span>
+        <span>FREE DELIVERY IN PAKISTAN &amp; GCC ON ORDERS ABOVE RS 3000</span>
       </div>
       <header>
         <div className="headrow">
@@ -52,19 +50,11 @@ export default function Header() {
           </nav>
 
           <div className="head-actions">
-            <div className="lang-switch">
-              {['en', 'ur', 'ar'].map((code) => (
-                <button
-                  key={code}
-                  className={lang === code ? 'active' : ''}
-                  onClick={() => setLang(code)}
-                >
-                  {code === 'en' ? 'EN' : code === 'ur' ? 'اردو' : 'عربي'}
-                </button>
-              ))}
-            </div>
+            <Link href={user ? '/account' : '/login'} className="btn-ghost" style={{ padding: '10px 16px', fontSize: 13 }}>
+              {user ? 'Account' : 'Login'}
+            </Link>
             <Link href="/cart" className={`cart-btn ${bump ? 'bump' : ''}`}>
-              {t.nav.cart} <span className="count">{cartCount}</span>
+              Cart <span className="count">{cartCount}</span>
             </Link>
             <button className="mobile-toggle" onClick={() => setNavOpen((v) => !v)}>
               ☰
