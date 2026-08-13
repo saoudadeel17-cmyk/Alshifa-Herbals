@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Reveal from '@/components/Reveal';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -9,8 +10,17 @@ export default function ContactPage() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Save to Supabase so it shows up in the Admin Panel
+    await supabase.from('contact_messages').insert({
+      name: form.name,
+      phone: form.phone,
+      email: form.email || null,
+      message: form.message,
+    });
+
     const text = encodeURIComponent(
       `New message from website:\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email || '-'}\nMessage: ${form.message}`
     );

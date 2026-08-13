@@ -1,13 +1,50 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { formatDualPrice } from '@/data/currency';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function CartPage() {
-  const { cart, removeFromCart, changeQty, subtotal } = useCart();
+  const { cart, removeFromCart, changeQty, subtotal, clearCart } = useCart();
+  const router = useRouter();
   const shipping = subtotal >= 3000 || subtotal === 0 ? 0 : 250;
   const total = subtotal + shipping;
+
+  const [showForm, setShowForm] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [form, setForm] = useState({ name: '', phone: '', address: '' });
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handlePlaceOrder = async (e) => {
+    e.preventDefault();
+    setPlacing(true);
+    const { data, error } = await supabase
+      .from('orders')
+      .insert({
+        customer_name: form.name,
+        phone: form.phone,
+        address: form.address,
+        items: cart,
+        total,
+        status: 'placed',
+      })
+      .select()
+      .single();
+    setPlacing(false);
+
+    if (error) {
+      alert('Something went wrong placing your order. Please try again or order via WhatsApp.');
+      return;
+    }
+
+    clearCart();
+    router.push(`/order-confirmed?id=${data.id}`);
+  };
 
   return (
     <>
@@ -63,16 +100,39 @@ export default function CartPage() {
               <div className="cart-summary" style={{ marginTop: 34 }}>
                 <div className="row"><span>Subtotal</span><span>Rs {subtotal}/-</span></div>
                 <div className="row"><span>Shipping</span><span>{shipping === 0 ? 'Free' : `Rs ${shipping}/-`}</span></div>
-                <div className="row total"><span>Total</span><span>Rs {total}/-</span></div>
-                <button
-                  className="btn-primary"
-                  style={{ width: '100%', justifyContent: 'center', marginTop: 18 }}
-                  onClick={() =>
-                    alert('Checkout: connect this button to your payment gateway (Card / COD / Bank Transfer / Wallets).')
-                  }
-                >
-                  Proceed to Checkout
-                </button>
+                <div className="row total"><span>Total</span><span>Rs {total}/- <span style={{ fontSize: 13, opacity: 0.7 }}>(~{formatDualPrice(total).sar} SAR)</span></span></div>
+                <p style={{ fontSize: 12, color: 'var(--ink-soft)', textAlign: 'center', marginTop: 14, marginBottom: 4 }}>
+                  Currently accepting <strong>Cash on Delivery</strong>. Online card payment coming soon.
+                </p>
+
+                {!showForm ? (
+                  <button
+                    className="btn-primary"
+                    style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
+                    onClick={() => setShowForm(true)}
+                  >
+                    Proceed to Checkout
+                  </button>
+                ) : (
+                  <form onSubmit={handlePlaceOrder} style={{ marginTop: 16 }}>
+                    <div className="field">
+                      <label>Full Name</label>
+                      <input name="name" required value={form.name} onChange={handleChange} placeholder="Your name" />
+                    </div>
+                    <div className="field">
+                      <label>Phone Number</label>
+                      <input name="phone" type="tel" required value={form.phone} onChange={handleChange} placeholder="+92 3xx xxxxxxx" />
+                    </div>
+                    <div className="field">
+                      <label>Delivery Address</label>
+                      <textarea name="address" rows="3" required value={form.address} onChange={handleChange} placeholder="House, street, city" />
+                    </div>
+                    <button type="submit" className="btn-primary form-submit" disabled={placing}>
+                      {placing ? 'Placing order...' : `Place Order (Rs ${total}/- COD)`}
+                    </button>
+                  </form>
+                )}
+
                 <a
                   href="https://wa.me/966573859529"
                   target="_blank"
