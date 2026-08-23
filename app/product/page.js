@@ -125,6 +125,38 @@ export default function ProductPage() {
         </div>
       </section>
 
+      <section>
+        <div className="wrap">
+          <Reveal className="section-head reveal">
+            <div className="eyebrow">Gallery</div>
+            <h2>See Hepaliv Up Close</h2>
+          </Reveal>
+          <Reveal
+            className="reveal-stagger"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}
+          >
+            <div className="lift" style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid var(--line)' }}>
+              <Image
+                src="/assets/gallery1.png"
+                alt="Hepaliv Herbal Powder benefits poster"
+                width={600}
+                height={800}
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+            <div className="lift" style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid var(--line)' }}>
+              <Image
+                src="/assets/gallery2.png"
+                alt="Hepaliv Herbal Powder real results poster"
+                width={600}
+                height={800}
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       <section className="ingredients">
         <Reveal className="wrap reveal">
           <div className="section-head" style={{ marginBottom: 20 }}>
