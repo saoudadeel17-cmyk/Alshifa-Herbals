@@ -1,208 +1,189 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Reveal from '@/components/Reveal';
 import { useCart } from '@/context/CartContext';
-import { formatDualPrice } from '@/data/currency';
-import { supabase } from '@/lib/supabaseClient';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/data/translations';
+import { PRODUCTS } from '@/data/products';
 
-// TODO: replace these with the real account details
-const PAYMENT_DETAILS = {
-  jazzcash: { label: 'JazzCash', number: '03XX-XXXXXXX', name: 'Alshifa Herbals' },
-  easypaisa: { label: 'Easypaisa', number: '03XX-XXXXXXX', name: 'Alshifa Herbals' },
-  bank: { label: 'Bank Transfer', accountTitle: 'Alshifa Herbals', accountNumber: 'XXXX-XXXXXXXX-XX', bankName: 'Your Bank Name', iban: 'PKXX XXXX XXXX XXXX XXXX XXXX' },
-};
+const PROBLEMS = [
+  { title: 'Liver Weakness', sub: 'Sluggish digestion & low energy', back: 'Toxin build-up, constant fatigue & worsening digestion over time.' },
+  { title: 'Weight Concerns', sub: 'Slow metabolism & stored fat', back: 'Continued weight gain and harder-to-reverse metabolic slowdown.' },
+  { title: 'Stomach & Piles', sub: 'Constipation, bloating & discomfort', back: 'Chronic constipation can worsen piles & long-term gut discomfort.' },
+  { title: 'Headache & Fatigue', sub: 'Low stamina through the day', back: 'Poor focus, low productivity & disturbed sleep patterns.' },
+  { title: 'Loss of Appetite', sub: 'Irregular eating & poor absorption', back: 'Nutrient deficiency and further weakening of the digestive system.' },
+  { title: 'Hormonal Balance', sub: "Support for women's wellness", back: 'Mood swings, irregular cycles & low energy can persist.' },
+];
 
-export default function CartPage() {
-  const { cart, removeFromCart, changeQty, subtotal, clearCart } = useCart();
+const BENEFITS = [
+  'Improves digestion & liver function',
+  'Supports healthy weight & metabolism',
+  'Relieves constipation & bloating',
+  'Boosts energy & overall wellness',
+  '100% natural, no added chemicals',
+  'Trusted quality, made with pure herbs',
+];
+
+export default function HomePage() {
+  const { addToCart } = useCart();
+  const { lang } = useLanguage();
   const router = useRouter();
-  const shipping = subtotal >= 3000 || subtotal === 0 ? 0 : 250;
-  const total = subtotal + shipping;
+  const t = translations[lang].home;
 
-  const [showForm, setShowForm] = useState(false);
-  const [placing, setPlacing] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', address: '' });
-  const [paymentMethod, setPaymentMethod] = useState('cod');
-  const [transactionRef, setTransactionRef] = useState('');
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handlePlaceOrder = async (e) => {
-    e.preventDefault();
-
-    if (paymentMethod !== 'cod' && !transactionRef.trim()) {
-      alert('Please enter your transaction ID / reference number after sending the payment.');
-      return;
-    }
-
-    setPlacing(true);
-    const { data, error } = await supabase
-      .from('orders')
-      .insert({
-        customer_name: form.name,
-        phone: form.phone,
-        address: form.address,
-        items: cart,
-        total,
-        status: 'placed',
-        payment_method: paymentMethod,
-        transaction_ref: paymentMethod === 'cod' ? null : transactionRef,
-      })
-      .select()
-      .single();
-    setPlacing(false);
-
-    if (error) {
-      alert('Something went wrong placing your order. Please try again or order via WhatsApp.');
-      return;
-    }
-
-    clearCart();
-    router.push(`/order-confirmed?id=${data.id}`);
+  const handleOrder = () => {
+    addToCart(PRODUCTS.hepaliv);
+    router.push('/cart');
   };
 
   return (
     <>
-      <div className="pagehero" style={{ padding: '44px 0' }}>
-        <div className="wrap"><h1 style={{ fontSize: 30 }}>Your Cart</h1></div>
-      </div>
+      <section className="hero">
+        <div className="hero-arc" />
+        <div className="wrap">
+          <div>
+            <div className="eyebrow hero-eyebrow">{t.eyebrow}</div>
+            <h1>
+              {t.headlineTop}
+              <br />
+              <em>{t.headlineEm}</em> {t.headlineEnd}
+            </h1>
+            <p className="sub">{t.sub}</p>
+            <div className="hero-ctas">
+              <button className="btn-primary" onClick={handleOrder}>
+                {t.ctaShop}
+              </button>
+              <a href="https://wa.me/966573859529" target="_blank" rel="noreferrer" className="btn-ghost">
+                {t.ctaWhatsapp}
+              </a>
+            </div>
+            <div className="trustrow">
+              <div className="item"><span className="dot" />{t.trust1}</div>
+              <div className="item"><span className="dot" />{t.trust2}</div>
+              <div className="item"><span className="dot" />{t.trust3}</div>
+            </div>
+          </div>
+          <div className="hero-media">
+            <div className="frame">
+              <Link href="/product">
+                <Image src="/assets/poster3.png" alt="Hepaliv Herbal Powder" width={380} height={480} />
+              </Link>
+            </div>
+            <div className="price-pill">
+              <div className="lbl">ONE-TIME PRICE</div>
+              <div className="val">Rs 1000/-</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="problems">
+        <div className="wrap">
+          <Reveal className="section-head reveal">
+            <div className="eyebrow">{t.problemsEyebrow}</div>
+            <h2>{t.problemsHeading}</h2>
+          </Reveal>
+          <Reveal className="pgrid reveal-stagger">
+            {PROBLEMS.map((p) => (
+              <div className="flip-card" key={p.title}>
+                <div className="flip-inner">
+                  <div className="flip-front">
+                    <div className="ic">✺</div>
+                    <h3>{p.title}</h3>
+                    <p>{p.sub}</p>
+                  </div>
+                  <div className="flip-back">
+                    <div className="tag">If ignored</div>
+                    {p.back}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="showcase">
+        <div className="wrap">
+          <Reveal className="showcase-media reveal" style={{ position: 'relative' }}>
+            <Image src="/assets/poster2.png" alt="Hepaliv Herbal Powder details" width={500} height={600} style={{ borderRadius: 16, width: '100%', height: 'auto' }} />
+            <div className="hotspot" style={{ top: '38%', left: '30%' }}>
+              <div className="tip">
+                <strong>Pure Herbs</strong>Turmeric, fennel &amp; senna sourced from trusted farms.
+              </div>
+            </div>
+            <div className="hotspot" style={{ top: '60%', left: '65%' }}>
+              <div className="tip">
+                <strong>Easy to Mix</strong>Just one spoon in warm water, morning &amp; night.
+              </div>
+            </div>
+          </Reveal>
+          <Reveal className="reveal">
+            <div className="eyebrow">{t.benefitsEyebrow}</div>
+            <h2 style={{ fontSize: 32, color: 'var(--forest)', marginTop: 14 }}>
+              {t.benefitsHeading}
+            </h2>
+            <p style={{ color: 'var(--ink-soft)', marginTop: 12, fontSize: 14.5, lineHeight: 1.6, maxWidth: 460 }}>
+              {t.benefitsText}
+            </p>
+            <div className="benefits">
+              {BENEFITS.map((b) => (
+                <div className="benefit" key={b}>
+                  <div className="dot">✓</div>
+                  <p>{b}</p>
+                </div>
+              ))}
+            </div>
+            <Link href="/product" className="btn-primary" style={{ marginTop: 26, display: 'inline-flex' }}>
+              {t.viewProduct}
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="ingredients">
+        <Reveal className="wrap reveal">
+          <div className="istrip">
+            <div className="ing"><div className="ic">🌿</div><span>Fennel</span></div>
+            <div className="ing"><div className="ic">🌾</div><span>Senna</span></div>
+            <div className="ing"><div className="ic">🟠</div><span>Turmeric</span></div>
+            <div className="ing"><div className="ic">🌱</div><span>Mint</span></div>
+            <div className="ing"><div className="ic">🌰</div><span>Root Blend</span></div>
+          </div>
+        </Reveal>
+      </section>
+
+      <section className="testis">
+        <div className="wrap">
+          <Reveal className="section-head reveal">
+            <div className="eyebrow">{t.reviewsEyebrow}</div>
+            <h2>{t.reviewsHeading}</h2>
+          </Reveal>
+          <Reveal className="tgrid reveal-stagger">
+            <div className="tcard lift"><div className="stars">★★★★★</div><p>&quot;My digestion improved within two weeks and I finally feel light after meals.&quot;</p><div className="who">— Ayesha, Lahore</div></div>
+            <div className="tcard lift"><div className="stars">★★★★★</div><p>&quot;Easy to mix, no strange taste, and my energy through the day has improved.&quot;</p><div className="who">— Omar, Riyadh</div></div>
+            <div className="tcard lift"><div className="stars">★★★★★</div><p>&quot;Helped with my constipation issue in just a few days. Ordering again.&quot;</p><div className="who">— Fatima, Karachi</div></div>
+          </Reveal>
+        </div>
+      </section>
 
       <section>
-        <div className="wrap">
-          {cart.length === 0 ? (
-            <div className="empty-cart">
-              <div className="ic">🛒</div>
-              <h2 style={{ color: 'var(--forest)' }}>Your cart is empty</h2>
-              <p style={{ color: 'var(--ink-soft)', margin: '10px 0 26px' }}>
-                Add Hepaliv to your cart to get started.
-              </p>
-              <Link href="/product" className="btn-primary">Shop Hepaliv</Link>
+        <Reveal className="wrap reveal">
+          <div className="ctaband">
+            <div>
+              <h2>{t.ctaBandHeading}</h2>
+              <p>{t.ctaBandText}</p>
             </div>
-          ) : (
-            <>
-              <table className="cart-table">
-                <thead>
-                  <tr><th>Product</th><th>Quantity</th><th>Subtotal</th><th /></tr>
-                </thead>
-                <tbody>
-                  {cart.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <div className="cart-item-info">
-                          <Image src={item.img} alt={item.name} width={64} height={64} style={{ borderRadius: 12, objectFit: 'cover' }} />
-                          <div>
-                            <div style={{ fontWeight: 600, color: 'var(--forest)' }}>{item.name}</div>
-                            <div style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>Rs {item.price}/- each</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="qty-box">
-                          <button onClick={() => changeQty(item.id, -1)}>−</button>
-                          <span>{item.qty}</span>
-                          <button onClick={() => changeQty(item.id, 1)}>+</button>
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: 600 }}>Rs {item.price * item.qty}/-</td>
-                      <td>
-                        <button className="remove-btn" onClick={() => removeFromCart(item.id)}>Remove</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="cart-summary" style={{ marginTop: 34, maxWidth: 440 }}>
-                <div className="row"><span>Subtotal</span><span>Rs {subtotal}/-</span></div>
-                <div className="row"><span>Shipping</span><span>{shipping === 0 ? 'Free' : `Rs ${shipping}/-`}</span></div>
-                <div className="row total"><span>Total</span><span>Rs {total}/- <span style={{ fontSize: 13, opacity: 0.7 }}>(~{formatDualPrice(total).sar} SAR)</span></span></div>
-
-                {!showForm ? (
-                  <button
-                    className="btn-primary"
-                    style={{ width: '100%', justifyContent: 'center', marginTop: 18 }}
-                    onClick={() => setShowForm(true)}
-                  >
-                    Proceed to Checkout
-                  </button>
-                ) : (
-                  <form onSubmit={handlePlaceOrder} style={{ marginTop: 16 }}>
-                    <div className="field">
-                      <label>Full Name</label>
-                      <input name="name" required value={form.name} onChange={handleChange} placeholder="Your name" />
-                    </div>
-                    <div className="field">
-                      <label>Phone Number</label>
-                      <input name="phone" type="tel" required value={form.phone} onChange={handleChange} placeholder="+92 3xx xxxxxxx" />
-                    </div>
-                    <div className="field">
-                      <label>Delivery Address</label>
-                      <textarea name="address" rows="3" required value={form.address} onChange={handleChange} placeholder="House, street, city" />
-                    </div>
-
-                    <div className="field">
-                      <label>Payment Method</label>
-                      <select value={paymentMethod} onChange={(e) => { setPaymentMethod(e.target.value); setTransactionRef(''); }}>
-                        <option value="cod">Cash on Delivery</option>
-                        <option value="jazzcash">JazzCash</option>
-                        <option value="easypaisa">Easypaisa</option>
-                        <option value="bank">Bank Transfer</option>
-                      </select>
-                    </div>
-
-                    {paymentMethod === 'jazzcash' && (
-                      <div style={{ background: 'var(--blush)', borderRadius: 12, padding: 16, marginBottom: 16, fontSize: 13.5 }}>
-                        <p style={{ margin: 0, fontWeight: 600, color: 'var(--forest)' }}>Send Rs {total}/- via JazzCash to:</p>
-                        <p style={{ margin: '6px 0 0' }}>{PAYMENT_DETAILS.jazzcash.number} ({PAYMENT_DETAILS.jazzcash.name})</p>
-                      </div>
-                    )}
-                    {paymentMethod === 'easypaisa' && (
-                      <div style={{ background: 'var(--blush)', borderRadius: 12, padding: 16, marginBottom: 16, fontSize: 13.5 }}>
-                        <p style={{ margin: 0, fontWeight: 600, color: 'var(--forest)' }}>Send Rs {total}/- via Easypaisa to:</p>
-                        <p style={{ margin: '6px 0 0' }}>{PAYMENT_DETAILS.easypaisa.number} ({PAYMENT_DETAILS.easypaisa.name})</p>
-                      </div>
-                    )}
-                    {paymentMethod === 'bank' && (
-                      <div style={{ background: 'var(--blush)', borderRadius: 12, padding: 16, marginBottom: 16, fontSize: 13.5 }}>
-                        <p style={{ margin: 0, fontWeight: 600, color: 'var(--forest)' }}>Send Rs {total}/- via Bank Transfer to:</p>
-                        <p style={{ margin: '6px 0 0' }}>{PAYMENT_DETAILS.bank.accountTitle}</p>
-                        <p style={{ margin: '2px 0 0' }}>{PAYMENT_DETAILS.bank.bankName} — {PAYMENT_DETAILS.bank.accountNumber}</p>
-                        <p style={{ margin: '2px 0 0' }}>IBAN: {PAYMENT_DETAILS.bank.iban}</p>
-                      </div>
-                    )}
-                    {paymentMethod !== 'cod' && (
-                      <div className="field">
-                        <label>Transaction ID / Reference Number</label>
-                        <input
-                          required
-                          value={transactionRef}
-                          onChange={(e) => setTransactionRef(e.target.value)}
-                          placeholder="After sending payment, enter the transaction ID here"
-                        />
-                      </div>
-                    )}
-
-                    <button type="submit" className="btn-primary form-submit" disabled={placing}>
-                      {placing ? 'Placing order...' : `Place Order (Rs ${total}/-)`}
-                    </button>
-                  </form>
-                )}
-
-                <a
-                  href="https://wa.me/966573859529"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-ghost"
-                  style={{ width: '100%', justifyContent: 'center', marginTop: 10 }}
-                >
-                  Order via WhatsApp Instead
-                </a>
-              </div>
-            </>
-          )}
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+              <div className="cta-price">75g pack<b>Rs 1000/-</b></div>
+              <button className="btn-primary" style={{ background: 'var(--gold)', color: 'var(--forest)' }} onClick={handleOrder}>
+                {t.orderNow}
+              </button>
+            </div>
+          </div>
+        </Reveal>
       </section>
     </>
   );
